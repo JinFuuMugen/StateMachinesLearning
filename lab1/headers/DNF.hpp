@@ -6,8 +6,8 @@ class DNF
 {
 private:
     std::vector<Impl> Data;
-    std::vector<int> SDNFnums;
-    int varsAmount;
+    std::vector<int> SDNFnums;                  //nums of given sdnf
+    int varsAmount;                             //amount of variables
 
     void TDNFtoMDNF();
 

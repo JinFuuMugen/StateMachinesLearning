@@ -4,8 +4,8 @@ Impl::Impl(int n){
     this->Num = n;
     this->Ind = Count(n);
     this->P = 0;
-    this->Pw = 0;
-    this->Inf = 1;
+    this->Pw = false;
+    this->Inf = true;
 }
 
 Impl::Impl(bool valid){
@@ -67,10 +67,6 @@ bool Impl::operator!= (const Impl& diffImpl) const{
 
 int Impl::GetPw() const{
     return this->Pw;
-}
-
-int Impl::GetInd(){
-    return this->Ind;
 }
 
 int Impl::GetNum() const{

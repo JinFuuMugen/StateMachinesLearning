@@ -10,10 +10,10 @@ class Impl{
 
     public:
         explicit Impl(int);                  //Constr from impl number
-        explicit Impl(bool);
-        ~Impl();                    //Destr
+        explicit Impl(bool);                //Crete "bad" impl
+        ~Impl();
 
-        static Impl Patch(Impl*, Impl*);  //Method checks Quine McCluskey for checking possibility of gluing two imls
+        static Impl Patch(Impl*, Impl*);  //Method checks Quine McCluskey for checking possibility of gluing two impls
                                             //method changes Pw in both impls
                                             //returns new impl if possible
                                             //else returns null
@@ -22,7 +22,6 @@ class Impl{
         bool operator != (const Impl&) const;
         int GetPw() const;
         int GetNum() const;
-        int GetInd();
         int GetP() const;
 
         void setPw();

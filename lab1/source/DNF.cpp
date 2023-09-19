@@ -3,7 +3,7 @@
 #include <iostream>
 #include <bits/stdc++.h>
 
-bool compareData(const Impl& i1, const Impl& i2) {
+bool compareData(const Impl& i1, const Impl& i2) {                  //lambda sort function
     if (i1.GetNum() < i2.GetNum()) {
         return true;
     } else if (i1.GetNum() == i2.GetNum()) {
@@ -12,7 +12,7 @@ bool compareData(const Impl& i1, const Impl& i2) {
     return false;
 }
 
-bool allColsHaveOnes(bool **matrix, int rowNum, int colNum){
+bool allColsHaveOnes(bool **matrix, int rowNum, int colNum){          //checks if all columns have at least single one
     for (int j = 0; j < colNum; j++){
         bool sum = false;
         for (int i = 0; i < rowNum; i++){
@@ -24,7 +24,7 @@ bool allColsHaveOnes(bool **matrix, int rowNum, int colNum){
     return true;
 }
 
-bool** dropRow(bool **matrix, int rowNum, int colNum, int rowIdx){
+bool** dropRow(bool **matrix, int rowNum, int colNum, int rowIdx){                  //function that returns copy of given matrix but one row at rowIdx
     bool** temp = (bool**)malloc(sizeof(bool**) * (rowNum - 1));
     if (rowIdx == 0){
         for (int i = 0; i < rowNum - 1; i++){
@@ -49,9 +49,15 @@ bool** dropRow(bool **matrix, int rowNum, int colNum, int rowIdx){
     return temp;
 }
 
-DNF::DNF(std::string stringDNF){
+DNF::DNF(std::string stringDNF){                                                //constructor
     int inputLength = stringDNF.length();
-    this->varsAmount = std::log2(inputLength);
+
+    if (((inputLength & (inputLength - 1))) != 0){                              //checks input (amount of symbols is power of two)
+        std::cerr << "Invalid input" << std::endl;
+        exit(-1);
+    }
+
+    this->varsAmount = std::log2(inputLength);                              //count number of variables
 
     this->Data.reserve(inputLength);
     
@@ -83,10 +89,10 @@ void DNF::Minimize(){
             for(int j = i; j < Data.size(); j++){
                 Impl *leftImpl = &Data.at(i);
                 Impl *rightImpl = &Data.at(j);
-                Impl patchRes = Impl::Patch(leftImpl, rightImpl);
+                Impl patchRes = Impl::Patch(leftImpl, rightImpl);                           //call patch
                 if (patchRes.isValid()){
-                    this->Data.at(i).setPw();
-                    this->Data.at(j).setPw();
+                    this->Data.at(i).setPw();                                           //set pw
+                    this->Data.at(j).setPw();                                           //set pw
                     tempData.push_back(patchRes);
                     wasPatched = true;
                 } 
@@ -94,12 +100,12 @@ void DNF::Minimize(){
         }
 
         if (!wasPatched){
-            break;
+            break;                                                                          //loop exit point
         }
 
         for(const Impl& impl : Data){
-            if (!impl.GetPw()){
-                tempData.push_back(impl);
+            if (!impl.GetPw()){                                                            //add impl to temp vector if it was not patched
+                tempData.push_back(impl);                                                  //in order to save unpatched impls
             }
         }
         DNF::Data = tempData;
@@ -110,7 +116,7 @@ void DNF::Minimize(){
             if ((Data.at(i).GetNum() == Data.at(j).GetNum()) 
                 && Data.at(i).GetP() == Data.at(j).GetP()
                 && j != i){
-                    DNF::Data.erase(Data.begin() + i);
+                    DNF::Data.erase(Data.begin() + i);                             //delete duplicates for Data vector
                     j = 0;
             }
         }
@@ -118,13 +124,13 @@ void DNF::Minimize(){
 
     sort(Data.begin(), Data.end(), compareData);
 
-    TDNFtoMDNF();
+    TDNFtoMDNF();                                                                       //calls transformation from TDNF to MDNF
 }
 
 void DNF::TDNFtoMDNF() {
 
-    int mintermsAmount = this->SDNFnums.size();
-    bool **matr = (bool**) malloc(this->Data.size() * sizeof(bool**));
+    int mintermsAmount = this->SDNFnums.size();                                         //amount of given minterms
+    bool **matr = (bool**) malloc(this->Data.size() * sizeof(bool**));            //matrix to find excesses
 
     for (int i = 0; i < this->Data.size(); i++){
         *(matr + i) = (bool *) malloc(mintermsAmount * sizeof(bool*));
@@ -134,35 +140,35 @@ void DNF::TDNFtoMDNF() {
     }
 
     for (int i = 0; i < this->Data.size(); i++){
-        bool** temp = dropRow(matr, this->Data.size(), mintermsAmount, i);
+        bool** temp = dropRow(matr, this->Data.size(), mintermsAmount, i);              //try row drop for every row index
 
-        if (allColsHaveOnes(temp, this->Data.size() - 1, mintermsAmount)){
-            this->Data.erase(this->Data.begin() + i);
+        if (allColsHaveOnes(temp, this->Data.size() - 1, mintermsAmount)){                   //and delete impl from vector if all
+            this->Data.erase(this->Data.begin() + i);                                                      //columns still have ones
         }
 
     }
 
     for (int i = 0; i < this->Data.size(); i++){
-        free(*(matr + i));
+        free(*(matr + i));                                                                                  //memory freeing
     }
     free(matr);
 
 }
 
-void DNF::Print(std::ostream &ost){
+void DNF::Print(std::ostream &ost){                                                                                 //impl vector to stream output
 
     for (const Impl& impl : DNF::Data) {
         std::string line;
 
-        std::string mask = std::bitset<128>(~impl.GetP()).to_string();
-        std::string vars = std::bitset<128>(impl.GetNum()).to_string();
+        std::string mask = std::bitset<128>(~impl.GetP()).to_string();                                         //category is 128, can be changed
+        std::string vars = std::bitset<128>(impl.GetNum()).to_string();                                        //category is 128, can be changed
 
-        mask = mask.substr(mask.length() - this->varsAmount, mask.length());
-        vars = vars.substr(vars.length() - this->varsAmount, vars.length());
+        mask = mask.substr(mask.length() - this->varsAmount, mask.length());                                //cut only needed part
+        vars = vars.substr(vars.length() - this->varsAmount, vars.length());                                //cut only needed part
 
 
         for (int i = 0; i < mask.length(); i++){
-            if (mask.at(i) == '0'){
+            if (mask.at(i) == '0'){                                                                             //logic of binaries to symbols transforming
                 line += '-';
             } else if (mask.at(i) == '1'){
                 line += vars.at(i);
