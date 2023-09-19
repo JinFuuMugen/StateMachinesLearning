@@ -1,41 +1,76 @@
 #include <DNF.hpp>
 #include <cmath>
 #include <iostream>
-#include <set>
+#include <bits/stdc++.h>
 
-DNF::DNF(std::string stringDNF){
-    int inputLength = stringDNF.length();
-    //int varsAmount = (int)(std::log2(inputLength));
-
-    Data.reserve(inputLength);
-    
-    for(int i = 0; i < inputLength; i++){
-        if ((stringDNF.at(i) == 49) || (stringDNF.at(i) == 45)){
-            Data.push_back(Impl{i});
-        }
-    }
-}
-
-bool DNF::checkPws(std::vector<Impl> implicants){
-    for (Impl impl : implicants){
-        if (impl.GetPw()){
-            return true;
-        }
+bool compareData(const Impl& i1, const Impl& i2) {
+    if (i1.GetNum() < i2.GetNum()) {
+        return true;
+    } else if (i1.GetNum() == i2.GetNum()) {
+        return i1.GetP() < i2.GetP();
     }
     return false;
 }
 
+bool allColsHaveOnes(bool **matrix, int rowNum, int colNum){
+    for (int j = 0; j < colNum; j++){
+        bool sum = false;
+        for (int i = 0; i < rowNum; i++){
+            sum += (*(*(matrix + i) + j));
+        }
+        if (!sum)
+            return false;
+    }
+    return true;
+}
 
-DNF::~DNF(){}
+bool** dropRow(bool **matrix, int rowNum, int colNum, int rowIdx){
+    bool** temp = (bool**)malloc(sizeof(bool**) * (rowNum - 1));
+    if (rowIdx == 0){
+        for (int i = 0; i < rowNum - 1; i++){
+            *(temp + i) = (bool*)malloc(sizeof(bool*) * colNum);
+            *(temp + i) = *(matrix + i + 1);
+        }
+    } else if (rowIdx == rowNum - 1){
+        for (int i = 0; i < rowNum - 1; i++){
+            *(temp + i) = (bool*)malloc(sizeof(bool*) * colNum);
+            *(temp + i) = *(matrix + i);
+        }
+    } else {
+        for (int i = 0; i < rowIdx; i++){
+            *(temp + i) = (bool*)malloc(sizeof(bool*) * colNum);
+            *(temp + i) = *(matrix + i);
+        }
+        for (int i = rowIdx; i < rowNum; i++){
+            *(temp + i) = (bool*)malloc(sizeof(bool*) * colNum);
+            *(temp + i) = *(matrix + i + 1);
+        }
+    }
+    return temp;
+}
+
+DNF::DNF(std::string stringDNF){
+    int inputLength = stringDNF.length();
+    this->varsAmount = std::log2(inputLength);
+
+    this->Data.reserve(inputLength);
+    
+    for(int i = 0; i < inputLength; i++){
+        if ((stringDNF.at(i) == '1') || (stringDNF.at(i) == '-')){
+            this->Data.emplace_back(i);
+            if (stringDNF.at(i) != '-') {
+                this->SDNFnums.push_back(i);
+            }
+        }
+    }
+    sort(this->SDNFnums.begin(), this->SDNFnums.end());
+}
+
+
+
+DNF::~DNF()= default;
 
 void DNF::Minimize(){
-
-    std::set<int> Ns;
-
-    for (Impl impl : Data){
-        Ns.insert(impl.GetNum());
-    }
-
     std::vector<Impl> tempData;
 
     for(;;){
@@ -62,16 +97,13 @@ void DNF::Minimize(){
             break;
         }
 
-        for(Impl impl : Data){
+        for(const Impl& impl : Data){
             if (!impl.GetPw()){
                 tempData.push_back(impl);
             }
         }
-
         DNF::Data = tempData;
-
     }
-
 
     for (int j = 0; j < Data.size(); j++){
         for (int i = 0; i < Data.size(); i++){
@@ -84,32 +116,59 @@ void DNF::Minimize(){
         }
     }
 
-    bool matr[Data.size()][Ns.size()];
+    sort(Data.begin(), Data.end(), compareData);
 
-    int i, j = 0;
-
-    for (Impl impl : Data){
-        for (int n : Ns){
-            if (impl.GetNum() & (~impl.GetP()) == n){
-                matr[i][j] = 1;
-            } else {
-                matr[i][j] = 0;
-            }
-            j++;
-        }
-        i++;
-    }
+    TDNFtoMDNF();
 }
 
-Impl& DNF::GetImpl(int n){
-    return DNF::Data.at(n);
+void DNF::TDNFtoMDNF() {
+
+    int mintermsAmount = this->SDNFnums.size();
+    bool **matr = (bool**) malloc(this->Data.size() * sizeof(bool**));
+
+    for (int i = 0; i < this->Data.size(); i++){
+        *(matr + i) = (bool *) malloc(mintermsAmount * sizeof(bool*));
+        for (int j = 0; j < mintermsAmount; j++){
+            *(*(matr + i) + j) = ((SDNFnums.at(j) & ~this->Data.at(i).GetP()) == this->Data.at(i).GetNum());
+        }
+    }
+
+    for (int i = 0; i < this->Data.size(); i++){
+        bool** temp = dropRow(matr, this->Data.size(), mintermsAmount, i);
+
+        if (allColsHaveOnes(temp, this->Data.size() - 1, mintermsAmount)){
+            this->Data.erase(this->Data.begin() + i);
+        }
+
+    }
+
+    for (int i = 0; i < this->Data.size(); i++){
+        free(*(matr + i));
+    }
+    free(matr);
+
 }
 
 void DNF::Print(std::ostream &ost){
 
-     for (Impl impl : DNF::Data) {
+    for (const Impl& impl : DNF::Data) {
+        std::string line;
 
+        std::string mask = std::bitset<128>(~impl.GetP()).to_string();
+        std::string vars = std::bitset<128>(impl.GetNum()).to_string();
+
+        mask = mask.substr(mask.length() - this->varsAmount, mask.length());
+        vars = vars.substr(vars.length() - this->varsAmount, vars.length());
+
+
+        for (int i = 0; i < mask.length(); i++){
+            if (mask.at(i) == '0'){
+                line += '-';
+            } else if (mask.at(i) == '1'){
+                line += vars.at(i);
+            }
+        }
+
+        ost << line << std::endl;
     }
-
-    
 }

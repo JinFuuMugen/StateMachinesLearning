@@ -9,8 +9,8 @@ class Impl{
         static int Count(int);      //Ones counter (essential for getting field of index Ind)
 
     public:
-        Impl(int);                  //Constr from impl number
-        Impl(bool);
+        explicit Impl(int);                  //Constr from impl number
+        explicit Impl(bool);
         ~Impl();                    //Destr
 
         static Impl Patch(Impl*, Impl*);  //Method checks Quine McCluskey for checking possibility of gluing two imls
@@ -19,13 +19,13 @@ class Impl{
                                             //else returns null
                                             //contr calls in order to create a new impl
                                             //P field of new impl fills in by calling field inside this method
-        bool operator != (Impl);
-        int GetPw();
-        int GetNum();
+        bool operator != (const Impl&) const;
+        int GetPw() const;
+        int GetNum() const;
         int GetInd();
-        int GetP();
+        int GetP() const;
 
         void setPw();
 
-        bool isValid();
+        bool isValid() const;
 };

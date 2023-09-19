@@ -30,7 +30,7 @@ int Impl::Count(int n){
     return count;
 }
 
-bool Impl::isValid(){
+bool Impl::isValid() const{
     return this->Inf;
 }
 
@@ -48,11 +48,11 @@ Impl Impl::Patch(Impl *first, Impl *second){
             newImpl.P = (*first).P + ((*second).Num - (*first).Num);
             return newImpl;
         } else {
-            return Impl(false);
+            return Impl{false};
         }
 }
 
-bool Impl::operator!= (Impl diffImpl){
+bool Impl::operator!= (const Impl& diffImpl) const{
     if ((this->Ind != diffImpl.Ind) 
         || (this->Num != diffImpl.Num)
         || (this->Inf != diffImpl.Inf)
@@ -65,7 +65,7 @@ bool Impl::operator!= (Impl diffImpl){
         return false;
 }
 
-int Impl::GetPw(){
+int Impl::GetPw() const{
     return this->Pw;
 }
 
@@ -73,12 +73,12 @@ int Impl::GetInd(){
     return this->Ind;
 }
 
-int Impl::GetNum(){
+int Impl::GetNum() const{
     return this->Num;
 }
 
-int Impl::GetP(){
+int Impl::GetP() const{
     return this->P;
 }
 
-Impl::~Impl(){}
+Impl::~Impl()= default;
