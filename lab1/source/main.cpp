@@ -31,7 +31,7 @@ int main(int argc, char *argv[]){
 
     dnfObject.Minimize();
 
-    std::ofstream outputFile("C:\\Users\\ORAPIO_2\\Desktop\\cemb\\StateMachinesLearning\\lab1\\mdnf.txt");
+    std::ofstream outputFile("D:\\Desktop\\StateMachinesLearning\\lab1\\mdnf.txt");
 
     if (!outputFile.is_open()) {
         std::cerr << "Failed to open or create the output file." << std::endl;

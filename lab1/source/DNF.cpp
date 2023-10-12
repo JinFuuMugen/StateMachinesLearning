@@ -49,6 +49,11 @@ bool** dropRow(bool **matrix, int rowNum, int colNum, int rowIdx){              
     return temp;
 }
 
+bool isPossibleToDelete(bool** matr, int rowNum, int colNum, int idx){
+    bool** temp = dropRow(matr, rowNum, colNum, idx);
+    return (allColsHaveOnes(temp, rowNum - 1, colNum));
+}
+
 DNF::DNF(std::string stringDNF){                                                //constructor
     int inputLength = stringDNF.length();
 
@@ -124,13 +129,8 @@ void DNF::Minimize(){
 
     sort(Data.begin(), Data.end(), compareData);
 
-    TDNFtoMDNF();                                                                       //calls transformation from TDNF to MDNF
-}
-
-void DNF::TDNFtoMDNF() {
-
-    int mintermsAmount = this->SDNFnums.size();                                         //amount of given minterms
-    bool **matr = (bool**) malloc(this->Data.size() * sizeof(bool**));            //matrix to find excesses
+    int mintermsAmount = this->SDNFnums.size();                                                                      //amount of given minterms
+    bool **matr = (bool**) malloc(this->Data.size() * sizeof(bool**));                                              //matrix to find excesses
 
     for (int i = 0; i < this->Data.size(); i++){
         *(matr + i) = (bool *) malloc(mintermsAmount * sizeof(bool*));
@@ -139,21 +139,51 @@ void DNF::TDNFtoMDNF() {
         }
     }
 
+    std::vector<int> toDelete;
     for (int i = 0; i < this->Data.size(); i++){
-        bool** temp = dropRow(matr, this->Data.size(), mintermsAmount, i);              //try row drop for every row index
-
-        if (allColsHaveOnes(temp, this->Data.size() - 1, mintermsAmount)){                   //and delete impl from vector if all
-            this->Data.erase(this->Data.begin() + i);                                                      //columns still have ones
+        if (isPossibleToDelete(matr, this->Data.size(), mintermsAmount, i)){
+            toDelete.push_back(i);
+            //printf("%d\n", i);
         }
-
     }
 
-    for (int i = 0; i < this->Data.size(); i++){
-        free(*(matr + i));                                                                                  //memory freeing
-    }
-    free(matr);
+    int maxDeletes = 0;
+    std::vector<int> rowsToDrop;
 
+    for (int i : toDelete){
+        bool** temp = dropRow(matr, this->Data.size(), mintermsAmount, i);
+        int thisDeletes = 1;
+        std::vector<int> thisRowsToDrop;
+        thisRowsToDrop.push_back(i);
+        for (int j : toDelete){
+            if (i != j){
+                if (isPossibleToDelete(temp, this->Data.size() - thisDeletes, mintermsAmount, j-thisDeletes)){
+                    temp = dropRow(temp, this->Data.size() - thisDeletes, mintermsAmount, j-thisDeletes);
+                    thisDeletes ++;
+                    thisRowsToDrop.push_back(j);
+                }
+            }
+        }
+        if (thisDeletes > maxDeletes){
+            maxDeletes = thisDeletes;
+            rowsToDrop = thisRowsToDrop;
+        }
+    }
+
+    int deleteNums = 0;
+    for (int i : rowsToDrop){
+        this->Data.erase(this->Data.begin() + i - deleteNums);
+        deleteNums++;
+    }
+
+
+//    for (int i = 0; i < this->Data.size(); i++){
+//        free(*(matr + i));                                                                                  //memory freeing
+//    }
+//    free(matr);
 }
+
+
 
 void DNF::Print(std::ostream &ost){                                                                                 //impl vector to stream output
 
