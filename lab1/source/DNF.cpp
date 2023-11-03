@@ -1,7 +1,8 @@
 #include <DNF.hpp>
 #include <cmath>
 #include <iostream>
-#include <bits/stdc++.h>
+#include <bitset>
+#include <algorithm>
 
 bool compareData(const Impl& i1, const Impl& i2) {                  //lambda sort function
     if (i1.GetNum() < i2.GetNum()) {

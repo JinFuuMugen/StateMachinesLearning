@@ -5,7 +5,7 @@
 
 
 int main(int argc, char *argv[]){
-    if (argc != 2){
+    if (argc < 2){
         std::cerr << "Please provide filepath (as cmd flag)" << std::endl;
         return 1;
     }
@@ -31,7 +31,7 @@ int main(int argc, char *argv[]){
 
     dnfObject.Minimize();
 
-    std::ofstream outputFile("D:\\Desktop\\StateMachinesLearning\\lab1\\mdnf.txt");
+    std::ofstream outputFile("mdnf.txt");
 
     if (!outputFile.is_open()) {
         std::cerr << "Failed to open or create the output file." << std::endl;
