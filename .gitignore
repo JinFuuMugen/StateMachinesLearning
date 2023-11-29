@@ -1,7 +1,6 @@
 a.out
 .vscode
 makefile
-*.txt
 cmake-build-debug
 .idea
 *.exe
