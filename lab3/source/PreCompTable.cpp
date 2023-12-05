@@ -73,3 +73,7 @@ PreCompTable::PreCompTable(const std::vector<std::vector<std::string>> &f_table,
     }
 }
 
+void PreCompTable::setPair(int idx, std::vector<std::pair<int, int>> newPairs){
+    this->comp_pairs[idx].setCouplesStatesTransact(newPairs);
+}
+

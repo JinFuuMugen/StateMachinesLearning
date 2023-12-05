@@ -11,5 +11,5 @@ class SCouple{
         bool operator==(SCouple);
         std::pair<int, int> getCouple() const;
         std::vector<std::pair<int, int>> getCoupleTrans() const;
-
+        void setCouplesStatesTransact(std::vector<std::pair<int, int>>);
 };

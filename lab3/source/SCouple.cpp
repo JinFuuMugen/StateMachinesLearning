@@ -22,3 +22,8 @@ std::pair<int, int> SCouple::getCouple() const
 std::vector<std::pair<int, int>> SCouple::getCoupleTrans() const{
     return this->couple_states_transact;
 }
+
+void SCouple::setCouplesStatesTransact(std::vector<std::pair<int, int>> newCouplesTransact){
+    this->couple_states_transact = newCouplesTransact;
+    return;
+}

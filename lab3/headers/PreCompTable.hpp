@@ -11,5 +11,7 @@ class PreCompTable : public CompTable
 
     void addPair(SCouple pair) override;
 
+    void setPair(int, std::vector<std::pair<int, int>>);
+
     PreCompTable(const std::vector<std::vector<std::string>> &f_table, const std::vector<std::vector<std::string>> &g_table);
 };

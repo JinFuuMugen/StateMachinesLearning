@@ -1,4 +1,4 @@
-#include "PreCompTable.hpp"
+#include "SMaxComp.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -48,23 +48,45 @@ int main()
     std::vector<std::vector<std::string>> f_table;
     std::vector<std::vector<std::string>> g_table;
 
-    // Заполнение f_table
-    fillTableFromFile(f_table_path, f_table);
+    if (f_table.empty() || g_table.empty())
+    {
+        fillTableFromFile(f_table_path, f_table);
 
-    // Заполнение g_table
-    fillTableFromFile(g_table_path, g_table);
+        fillTableFromFile(g_table_path, g_table);
+    }
 
-    // Ваши действия с векторами f_table и g_table здесь
+    int colNum = f_table.at(0).size();
+    int rowNum = f_table.size();
 
     PreCompTable pre_comp_table = PreCompTable(f_table, g_table);
 
-    for (auto &couple : pre_comp_table.getPairs()) {
+    printf("Pretable: \n");
+
+    for (auto &couple : pre_comp_table.getPairs())
+    {
         printf("%d, %d at ", couple.getCouple().first + 1, couple.getCouple().second + 1);
-        for (auto v : couple.getCoupleTrans()){
-            printf(" %d%d, ",v.first + 1, v.second + 1);
+        for (auto v : couple.getCoupleTrans())
+        {
+            printf(" %d%d, ", v.first + 1, v.second + 1);
         }
         printf("\n");
     }
+
+    printf("Fulltable: \n");
+
+    FCompTable full_comp_table = FCompTable(pre_comp_table);
+
+    for (auto &couple : full_comp_table.getPairs())
+    {
+        printf("%d, %d at ", couple.getCouple().first + 1, couple.getCouple().second + 1);
+        for (auto v : couple.getCoupleTrans())
+        {
+            printf(" %d%d, ", v.first + 1, v.second + 1);
+        }
+        printf("\n");
+    }
+
+    SMaxComp maxComp = SMaxComp(full_comp_table, rowNum, colNum);
 
     return 0;
 }

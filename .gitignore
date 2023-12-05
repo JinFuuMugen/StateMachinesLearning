@@ -4,3 +4,4 @@ makefile
 cmake-build-debug
 .idea
 *.exe
+lab3/lab3.out
