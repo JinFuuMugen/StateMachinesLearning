@@ -11,12 +11,24 @@ SMaxComp::SMaxComp(FCompTable f_comp_table, int rowNum, int colNum)
                                      {
                                          if (v == std::make_pair(-2, -2))
                                          {
-                                             return true; // Remove this couple
+                                             return true;
                                          }
                                      }
-                                     return false; // Keep this couple
-                                 }),
+                                     return false; }),
                   couples.end());
 
-    printf("Size new: %d\n", couples.size());
+    std::vector<int> itteration_lm = {rowNum - 1};
+    for (int i = rowNum - 1; i > 0; i--){
+        bool flag = true;
+        for (auto v : couples){
+            if (v.getCouple().first == i || v.getCouple().second == i){
+                flag = false;
+                break;
+            }
+        }
+        std::optional<int> cl;
+        if (!flag){
+            
+        }
+    }
 }
